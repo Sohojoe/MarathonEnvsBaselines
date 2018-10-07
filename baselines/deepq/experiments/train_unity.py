@@ -12,7 +12,6 @@ def main():
     )
     act = deepq.learn(
         env,
-        network='mlp',
         q_func=model,
         lr=1e-3,
         max_timesteps=100000,
