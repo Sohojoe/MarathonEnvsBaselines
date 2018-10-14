@@ -14,7 +14,7 @@
 /summaries
 
 # Training environments
-/envs
+# /envs
 
 # Environemnt logfile
 *UnitySDK.log
@@ -93,3 +93,6 @@ ml-agents-protobuf/Grpc*
 dist/
 build/
 summaries.001/
+
+# Whitelist builds
+!*envs/GridWorld.app
