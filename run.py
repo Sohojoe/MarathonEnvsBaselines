@@ -5,11 +5,16 @@ from stable_baselines.common.vec_env import DummyVecEnv, VecNormalize
 from stable_baselines import PPO2
 from gym_unity.envs import UnityEnv
 import os
+import psutil
+
 
 def main():
-    env_id = 'Hopper'
-    # env_id = 'Walker'
-    env_path = os.path.join('marathon_envs', env_id+'Run')
+    env_id = "hopper"
+    # env_id = "walker"
+    if psutil.MACOS:
+        env_path = os.path.join('envs', env_id+'-run')
+    elif psutil.WINDOWS:
+        env_path = os.path.join('envs', env_id+'-run', 'Unity Environment.exe')
     env = UnityEnv(env_path)
     env = DummyVecEnv([lambda: env])  # The algorithms require a vectorized environment to run
     # Automatically normalize the input features

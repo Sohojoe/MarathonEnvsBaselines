@@ -7,6 +7,7 @@ from stable_baselines.common.vec_env import DummyVecEnv, VecNormalize
 from stable_baselines import PPO2
 from gym_unity.envs import UnityEnv
 import os
+import psutil
 
 def make_env(env_id, rank, seed=0):
     """
@@ -25,7 +26,12 @@ def make_env(env_id, rank, seed=0):
     return _init
 
 def main():
-    env_id = os.path.join('marathon_envs', 'Walker')
+    env_id = "hopper"
+    # env_id = "walker"
+    if psutil.MACOS:
+        env_path = os.path.join('envs', env_id)
+    elif psutil.WINDOWS:
+        env_path = os.path.join('envs', env_id, 'Unity Environment.exe')
     num_cpu = 4  # Number of processes to use
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])

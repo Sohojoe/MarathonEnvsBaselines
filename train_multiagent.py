@@ -1,10 +1,12 @@
-from stable_baselines.common.policies import MlpPolicy
+from stable_baselines.common.policies import MlpPolicy, MlpLstmPolicy, MlpLnLstmPolicy
 from stable_baselines.common.vec_env import DummyVecEnv, VecNormalize
 from stable_baselines.common.policies import FeedForwardPolicy
 from stable_baselines import PPO2, PPO1
 from stable_baselines.a2c import A2C
 from UnityVecEnv import UnityVecEnv
 import os
+import psutil
+
 
 class CustomPolicy(FeedForwardPolicy):
     def __init__(self, *args, **kwargs):
@@ -13,20 +15,26 @@ class CustomPolicy(FeedForwardPolicy):
                                            feature_extraction="mlp")
 
 def main():
-    env_id = 'Hopper'
-    # env_id = 'Walker'
-    env = UnityVecEnv(os.path.join('marathon_envs', env_id+'_x16'))
+    env_id = "hopper"
+    # env_id = "walker"
+    if psutil.MACOS:
+        env_path = os.path.join('envs', env_id+'-x16')
+    elif psutil.WINDOWS:
+        env_path = os.path.join('envs', env_id+'-x16', 'Unity Environment.exe')
+    env = UnityVecEnv(os.path.join(env_path))
     # env = UnityVecEnv(os.path.join('marathon_envs', 'Walker'))
     # env = bench.Monitor(env, logger.get_dir(), allow_early_resets=True)
 
     # Automatically normalize the input features
     # env = VecNormalize(env)
     # env = VecNormalize(env, norm_obs=True, norm_reward=False,clip_obs=10.)
-    env = VecNormalize(env, norm_obs=True, norm_reward=False)
+    # env = VecNormalize(env, norm_obs=True, norm_reward=False)
 
     tensorboard_log = os.path.join("summaries", env_id)
     os.makedirs(tensorboard_log, exist_ok=True)
     policy = MlpPolicy
+    # policy = MlpLstmPolicy
+    # policy = MlpLnLstmPolicy
     # policy = CustomPolicy
     # model = PPO2(policy, env,
     #     gamma=0.99,
@@ -38,10 +46,10 @@ def main():
     # model = PPO2(policy=policy, env=env, n_steps=2048, nminibatches=32, lam=0.95, gamma=0.99, noptepochs=10,
     # model = PPO2(policy=policy, env=env, n_steps=10240, nminibatches=2048, lam=0.95, gamma=0.99, noptepochs=3,
     # model = PPO2(policy=policy, env=env, n_steps=640, nminibatches=2048, lam=0.95, gamma=0.99, noptepochs=3,
-    model = PPO2(policy=policy, env=env, n_steps=640, nminibatches=128, lam=0.95, gamma=0.99, noptepochs=3,
-                    ent_coef=0.0, learning_rate=1e-3, 
-                    # ent_coef=0.0, 
-                    # learning_rate=3e-4,
+    model = PPO2(policy=policy, env=env, n_steps=64, nminibatches=16, lam=0.95, gamma=0.99, noptepochs=8,
+                    # ent_coef=0.0, learning_rate=1e-3, 
+                    ent_coef=0.0, 
+                    learning_rate=3e-4,
                     cliprange=0.2,
                     verbose=2, tensorboard_log=tensorboard_log
                     )
