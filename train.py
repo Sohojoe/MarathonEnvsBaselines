@@ -34,20 +34,22 @@ def main():
         env_path = os.path.join('envs', env_id, 'Unity Environment.exe')
     num_cpu = 4  # Number of processes to use
     # Create the vectorized environment
-    env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
+    env = SubprocVecEnv([make_env(env_path, i) for i in range(num_cpu)])
     # Automatically normalize the input features
-    env = VecNormalize(env, norm_obs=True, norm_reward=False, clip_obs=10.)
-    # env = VecNormalize(env, norm_obs=True, norm_reward=False)
+    # env = VecNormalize(env, norm_obs=True, norm_reward=False, clip_obs=10.)
+    env = VecNormalize(env)
+    tensorboard_log = os.path.join("summaries", env_id)
 
     model = PPO2(MlpPolicy, env, 
-        gamma=0.99,
-        learning_rate=1.0e-3,
-        lam=0.95,
-        n_steps=512,
-        verbose=1)
+        # gamma=0.99,
+        # learning_rate=1.0e-3,
+        # lam=0.95,
+        # n_steps=512,
+        verbose=2, tensorboard_log=tensorboard_log
+        )
     model.learn(total_timesteps=1000000)
     os.makedirs('models', exist_ok=True)
-    model.save(os.path.join("models", "Walker_ppo2"))
+    model.save(os.path.join("models", env_id))
 
 if __name__ == '__main__':
     main()

@@ -17,12 +17,14 @@ def main():
     env = UnityEnv(env_path)
     env = DummyVecEnv([lambda: env])  # The algorithms require a vectorized environment to run
     # Automatically normalize the input features
-    env = VecNormalize(env, norm_obs=True, norm_reward=False,
-                    clip_obs=10.)
+    # env = VecNormalize(env, norm_obs=True, norm_reward=False,clip_obs=10.)
+    env = VecNormalize(env)
+    tensorboard_log = os.path.join("summaries", env_id)
 
-
-    model = PPO2(MlpPolicy, env, verbose=1)
-    model.learn(total_timesteps=10000)
+    model = PPO2(MlpPolicy, env, 
+        verbose=2, tensorboard_log=tensorboard_log
+        )
+    model.learn(total_timesteps=1000000)
     os.makedirs('models', exist_ok=True)
     model.save(os.path.join("models", "walker_ppo2_simple"))
 
