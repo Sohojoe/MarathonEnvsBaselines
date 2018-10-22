@@ -125,7 +125,7 @@ def build_env(args):
                                    intra_op_parallelism_threads=1,
                                    inter_op_parallelism_threads=1))
        env = make_vec_env(env_id, env_type, args.num_env or 1, seed, reward_scale=args.reward_scale)
-       env = VecNormalize(env)
+    #    env = VecNormalize(env)
 
     else:
        get_session(tf.ConfigProto(allow_soft_placement=True,

@@ -17,13 +17,13 @@ from baselines.common.atari_wrappers import make_atari, wrap_deepmind
 from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from baselines.common.retro_wrappers import RewardScaler
+from gym_unity.envs import UnityEnv
 
 
 def make_vec_env(env_id, env_type, num_env, seed, wrapper_kwargs=None, start_index=0, reward_scale=1.0):
     """
     Create a wrapped, monitored SubprocVecEnv for Atari and MuJoCo.
     """
-    print ("----- HELLO 1")
     if wrapper_kwargs is None: wrapper_kwargs = {}
     mpi_rank = MPI.COMM_WORLD.Get_rank() if MPI else 0
     def make_env(rank): # pylint: disable=C0111
@@ -31,7 +31,6 @@ def make_vec_env(env_id, env_type, num_env, seed, wrapper_kwargs=None, start_ind
             if env_type == 'unity':
                 worker_id = 32 + mpi_rank
                 print ("***** UnityEnv", env_id, worker_id, mpi_rank)
-                from gym_unity.envs import UnityEnv
                 env = UnityEnv(env_id, worker_id)
             else:
                 env = make_atari(env_id) if env_type == 'atari' else gym.make(env_id)
@@ -47,6 +46,24 @@ def make_vec_env(env_id, env_type, num_env, seed, wrapper_kwargs=None, start_ind
     set_global_seeds(seed)
     if num_env > 1: return SubprocVecEnv([make_env(i + start_index) for i in range(num_env)])
     else: return DummyVecEnv([make_env(start_index)])
+
+def make_unity_env(env_directory, num_env, visual, start_index=0):
+    """
+    Create a wrapped, monitored Unity environment.
+    """
+    def make_env(rank): # pylint: disable=C0111
+        def _thunk():
+            env = UnityEnv(env_directory, rank, use_visual=True)
+            env = Monitor(env, logger.get_dir() and os.path.join(logger.get_dir(), str(rank)))
+            return env
+        return _thunk
+    if visual:
+        return SubprocVecEnv([make_env(i + start_index) for i in range(num_env)])
+    else:
+        rank = MPI.COMM_WORLD.Get_rank()
+        env = UnityEnv(env_directory, rank, use_visual=False)
+        env = Monitor(env, logger.get_dir() and os.path.join(logger.get_dir(), str(rank)))
+        return env
 
 def make_mujoco_env(env_id, seed, reward_scale=1.0):
     """
