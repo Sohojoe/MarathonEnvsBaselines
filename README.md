@@ -16,7 +16,7 @@ Explority implementation of
 -----
 ### Install
 * Clone this repro (ideally from a release version)
-* Download / Unzip prebuilt MatathonEnvs into the `env` folder (link)
+* [Download](https://github.com/Sohojoe/MarathonEnvsBaselines/releases/tag/v1.0.0) / Unzip prebuilt MatathonEnvs into the `env` folder 
 * pip installs
 ```
 # ml-agents
