@@ -29,8 +29,8 @@ def make_vec_env(env_id, env_type, num_env, seed, wrapper_kwargs=None, start_ind
     def make_env(rank): # pylint: disable=C0111
         def _thunk():
             if env_type == 'unity':
-                worker_id = 32 + mpi_rank
-                print ("***** UnityEnv", env_id, worker_id, mpi_rank)
+                worker_id = 32 + rank
+                print ("***** UnityEnv", env_id, worker_id, rank)
                 env = UnityEnv(env_id, worker_id)
             else:
                 env = make_atari(env_id) if env_type == 'atari' else gym.make(env_id)
