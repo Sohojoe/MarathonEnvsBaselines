@@ -18,7 +18,23 @@ from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from baselines.common.retro_wrappers import RewardScaler
 from gym_unity.envs import UnityEnv
+from baselines.common.vec_env.unity_vec_env import UnityVecEnv
 
+def make_multi_unity_vec_env(env_id, env_type, num_env, seed, wrapper_kwargs=None, start_index=0, reward_scale=1.0):
+    """
+    Create a wrapped, monitored SubprocVecEnv for Atari and MuJoCo.
+    """
+    if wrapper_kwargs is None: wrapper_kwargs = {}
+    mpi_rank = MPI.COMM_WORLD.Get_rank() if MPI else 0
+    set_global_seeds(seed)
+    rank = mpi_rank
+    if env_type == 'unity':
+        worker_id = 32 + rank
+        print ("***** UnityEnv", env_id, worker_id, rank)
+        # env = UnityEnv(env_id, worker_id, multiagent=True)
+        env = UnityVecEnv(env_id)
+        return env
+    return None
 
 def make_vec_env(env_id, env_type, num_env, seed, wrapper_kwargs=None, start_index=0, reward_scale=1.0):
     """

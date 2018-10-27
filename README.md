@@ -32,24 +32,35 @@ pip install -e .
 
 ```
 -----
-### Status
+### Status-Hopper
 
 |  | Win10 | MacOS | Notes |
 |---|---|---|---|
 | ml-agents-ppo |  | **score=435** **(23min)** | 
+| baselines-ppo2 multiagents | | **score=860** **(11min)** | 16 agents, nsteps=128 
+| baselines-ppo2 multiagents non-normalized | | **score=450** **(11min)** | 16 agents, nsteps=128 
 | baselines-ppo2 MPIx4 | **score=594** (42min) | score=583 (82min) | Having problems with mpi + ml-agents on windows. Save is broken for normalized agents
 | baselines-ppo2 single agent | score=328 (31min) | | need to check if 1m steps with mpi == 1m steps with single agent as not clear why it would be faster. Save is broken for normalized agents
 | baselines-ppo2 MPIx4 TfRunningMeanStd | | | TfRunningMeanStd fixes save / load but trains slower
-| baselines-ppo2 single agent TfRunningMeanStd | | score=107 (49min) | TfRunningMeanStd fixes save / load but trains slower
+| baselines-ppo2 single agent TfRunningMeanStd | score=95 (40m) | score=107 (49min) | TfRunningMeanStd fixes save / load but trains slower
 | baselines-ppo2 MPIx4 non-normalized | | score=50 (79min) | (should try training for more steps)
-| stable_baselines-ppo2 multiagents | | score=1 **(8min)** | see `python train_multiagent.py`
-| stable_baselines-ppo2 mpi multi agent | | score=2 (26min) | see `python train.py`
-| stable_baselines-ppo2 single agent | | score=11 (60min) | see `python train_simple.py`
+
+
+### Status-Walker
+
+|  | Win10 | MacOS | Notes |
+|---|---|---|---|
+| ml-agents-ppo |  |  | 
+| baselines-ppo2 multiagents | | **score=1439** **(12min)**  | 
+| baselines-ppo2 multiagents non-normalized | | **score=1005** **(12min)** | 16 agents, nsteps=128 
+
 
 ### Charts
 |  | Win10 | MacOS  |
 |---|---|---|
 | ml-agents-ppo charts |  | ![macOS-ml-agents-ppo-score=435-1m-simulation-steps](./Images/macOS-ml-agents-ppo-score=435-1m-simulation-steps.png)|
+| baselines-ppo2 multiagents charts | | 
+| baselines-ppo2 multiagents non-normalized charts | | 
 | baselines-ppo2 MPIx4 charts | ![Win10-4xmpi-openai-baselines-ppo2-score=594-1m-simulation-steps-ep_len](./Images/Win10-4xmpi-openai-baselines-ppo2-score=594-1m-simulation-steps-ep_len.png) | ![macOS-4xmpi-openai-baselines-ppo2-score=583-1m-simulation-steps-ep_len](./Images/macOS-4xmpi-openai-baselines-ppo2-score=583-1m-simulation-steps-ep_len.png) |
 | baselines-ppo2 single agent charts | ![Win10-solo_agent-openai-baselines-ppo2-score=328-1m-simulation-steps-ep_len](./Images/Win10-solo_agent-openai-baselines-ppo2-score=328-1m-simulation-steps-ep_len.png)|  |
 | baselines-ppo2 MPIx4 Not Normalized* charts | ![macOS-4xmpi-openai-baselines-ppo2-NoNormalize-score=50-1m-simulation-steps](./Images/macOS-4xmpi-openai-baselines-ppo2-NoNormalize-score=50-1m-simulation-steps.png)  |
@@ -60,23 +71,7 @@ pip install -e .
 
 
 
------
-# Stable.Baselines
-Note: Stable Baselines is a fork of OpenAI.Baselines which addresses some issues with OpenAI.Baselines (main one for me is that OpenAI.Baselines cannot save enviroments with normalized observations)
 
-```
-# trains 16 concurrent agents
-python train_multiagent.py 
-
-# trains across 4 cpus
-python train.py 
-
-# example of training a single agent
-python train_simple.py 
-
-# example that loads and runs a trained model
-python run.py
-```
 
 -----
 # OpenAI.Baselines
@@ -96,13 +91,20 @@ set OPENAI_LOGDIR=summaries
 #### ppo2 for 1m steps
 ```
 # MacOS training:
+# ddd
+python -m baselines.run_multiagent_unity --alg=ppo2 --env=./envs/hopper-x16 --num_timesteps=1e6 --save_path=./models/hopper_1m_ppo2
+
 mpiexec -n 4 python -m baselines.run_unity --alg=ppo2 --env=./envs/hopper --num_timesteps=1e6 --save_path=./models/hopper_1m_ppo2
+
+python -m baselines.run_unity --alg=ppo2 --env=./envs/hopper --num_timesteps=1e6 --num_env=4 --save_path=./models/hopper_1m_ppo2
 
 # MacOS Play: 
 python -m baselines.run_unity --alg=ppo2 --env=./envs/hopper-run —num_timesteps=0 --load_path=./models/hopper_1m_ppo2 --play
 
 # Windows training:
 mpiexec -n 4 python -m baselines.run_unity --alg=ppo2 --env="envs\hopper\Unity Environment.exe" --num_timesteps=1e6 --save_path=models\hopper_1m_ppo2
+# Windows Play: 
+python -m baselines.run_unity --alg=ppo2 --env="envs\hopper-run\Unity Environment.exe" —num_timesteps=0 --load_path=models\hopper_1m_ppo2 --play
 ```
 
 #### acktr
@@ -147,3 +149,41 @@ mlagents-learn config/marathon_envs_config.yaml --train --worker-id=10 --env=./e
 
 set CUDA_VISIBLE_DEVICES=-1 & mlagents-learn config/marathon_envs_config.yaml --train --worker-id=10 --env=./envs/hopper-x16 --run-id=hopper.001
 ```
+
+
+-----
+# Stable.Baselines
+**Note: I was not able to get good results with Stable.Baselines**
+Note: Stable Baselines is a fork of OpenAI.Baselines which addresses some issues with OpenAI.Baselines (main one for me is that OpenAI.Baselines cannot save enviroments with normalized observations)
+
+```
+# trains 16 concurrent agents
+python train_multiagent.py 
+
+# trains across 4 cpus
+python train.py 
+
+# example of training a single agent
+python train_simple.py 
+
+# example that loads and runs a trained model
+python run.py
+```
+
+### Status
+
+|  | Win10 | MacOS | Notes |
+|---|---|---|---|
+| stable_baselines-ppo2 multiagents | | score=1 **(8min)** | see `python train_multiagent.py`
+| stable_baselines-ppo2 mpi multi agent | | score=2 (26min) | see `python train.py`
+| stable_baselines-ppo2 single agent | | score=11 (60min) | see `python train_simple.py`
+
+### Charts
+|  | Win10 | MacOS  |
+|---|---|---|
+| stable_baselines-ppo2 multiagents | | ![MacOS-stable_baselines-ppo2-multiagent-score=1](./Images/MacOS-stable_baselines-ppo2-multiagent-score=1.png)
+| stable_baselines-ppo2 mpi multi agent | | ![MacOS-stable_baselines-ppo2-4xmpi-score=2](./Images/MacOS-stable_baselines-ppo2-4xmpi-score=2.png)  |
+| stable_baselines-ppo2 single agent | | ![MacOS-stable_baselines-ppo2-single-agent-score=11](./Images/MacOS-stable_baselines-ppo2-single-agent-score=11.png)  |
+| baselines-ppo2 single agent TfRunningMeanStd | | ![MacOS-solo_agent-openai-baselines-ppo2-score=107-1m-simulation-steps](./Images/MacOS-solo_agent-openai-baselines-ppo2-score=107-1m-simulation-steps.png)
+
+
