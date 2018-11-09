@@ -26,11 +26,11 @@ def main():
     # env = bench.Monitor(env, logger.get_dir(), allow_early_resets=True)
 
     # Automatically normalize the input features
-    env = VecNormalize(env)
+    # env = VecNormalize(env)
     # env = VecNormalize(env, norm_obs=True, norm_reward=False,clip_obs=10.)
-    # env = VecNormalize(env, norm_obs=True, norm_reward=False)
+    env = VecNormalize(env, norm_obs=True, norm_reward=False)
 
-    tensorboard_log = os.path.join("summaries", env_id)
+    tensorboard_log = os.path.join("summaries", env_id + "011")
     os.makedirs(tensorboard_log, exist_ok=True)
     policy = MlpPolicy
     # policy = MlpLstmPolicy
@@ -47,14 +47,13 @@ def main():
     # model = PPO2(policy=policy, env=env, n_steps=10240, nminibatches=2048, lam=0.95, gamma=0.99, noptepochs=3,
     # model = PPO2(policy=policy, env=env, n_steps=640, nminibatches=2048, lam=0.95, gamma=0.99, noptepochs=3,
     # model = PPO2(policy=policy, env=env, n_steps=64, nminibatches=16, lam=0.95, gamma=0.99, noptepochs=8,
-    model = PPO2(policy=policy, env=env, 
-                    # n_steps=64, nminibatches=16, lam=0.95, gamma=0.99, noptepochs=8,
-                    # ent_coef=0.0, learning_rate=1e-3, 
-                    # ent_coef=0.0, 
-                    # learning_rate=3e-4,
-                    # cliprange=0.2,
-                    verbose=2, tensorboard_log=tensorboard_log
-                    )
+    model = PPO2(policy, env,
+        n_steps=64,
+        noptepochs=10,
+        learning_rate=3e-4,
+        nminibatches=32,
+        verbose=2, tensorboard_log=tensorboard_log
+        )
     # model = A2C(policy, env,
     #     verbose=2, tensorboard_log=tensorboard_log
     #     )
