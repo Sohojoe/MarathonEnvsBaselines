@@ -37,8 +37,8 @@ pip install -e .
 |  | Win10 | MacOS | Notes |
 |---|---|---|---|
 | ml-agents-ppo |  | **score=435** **(23min)** | 
-| baselines-ppo2 multiagents | **score=829** **(8min)** | **score=860** **(11min)** | 16 agents, nsteps=128 
-| baselines-ppo2 multiagents non-normalized | **score=774** **(8min)** | **score=450** **(11min)** | 16 agents, nsteps=128 
+| baselines-ppo2 multiagents | **score=943** **(7min)** | **score=860** **(11min)** | 16 agents, nsteps=128 
+| baselines-ppo2 multiagents non-normalized | **score=774** **(7min)** | **score=450** **(11min)** | 16 agents, nsteps=128 
 | baselines-ppo2 MPIx4 | **score=594** (42min) | score=583 (82min) | Having problems with mpi + ml-agents on windows. Save is broken for normalized agents
 | baselines-ppo2 single agent | score=328 (31min) | | need to check if 1m steps with mpi == 1m steps with single agent as not clear why it would be faster. Save is broken for normalized agents
 | baselines-ppo2 MPIx4 TfRunningMeanStd | | | TfRunningMeanStd fixes save / load but trains slower
@@ -51,7 +51,7 @@ pip install -e .
 |  | Win10 | MacOS | Notes |
 |---|---|---|---|
 | ml-agents-ppo |  |  | 
-| baselines-ppo2 multiagents | **score=1237** **(9min)** | **score=1439** **(12min)**  | 
+| baselines-ppo2 multiagents | **score=1371** **(8min)** | **score=1439** **(12min)**  | 
 | baselines-ppo2 multiagents non-normalized | | **score=1005** **(12min)** | 16 agents, nsteps=128 
 
 
