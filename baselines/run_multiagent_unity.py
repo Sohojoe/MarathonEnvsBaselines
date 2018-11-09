@@ -59,7 +59,7 @@ def train(args, extra_args):
     seed = args.seed
 
     learn = get_learn_function(args.alg)
-    alg_kwargs = get_learn_function_defaults(args.alg, env_type)
+    alg_kwargs = get_learn_function_defaults(args.alg, 'mujoco')
     alg_kwargs.update(extra_args)
 
     env = build_env(args)
