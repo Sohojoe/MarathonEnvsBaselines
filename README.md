@@ -163,8 +163,12 @@ set CUDA_VISIBLE_DEVICES=-1 & mlagents-learn config/marathon_envs_config.yaml --
 
 -----
 # Stable.Baselines
-**Note: I was not able to get good results with Stable.Baselines**
 Note: Stable Baselines is a fork of OpenAI.Baselines which addresses some issues with OpenAI.Baselines (main one for me is that OpenAI.Baselines cannot save enviroments with normalized observations)
+
+#### Install stable-baselines
+```
+pip install stable-baselines
+```
 
 ```
 # trains 16 concurrent agents
@@ -184,16 +188,14 @@ python run.py
 
 |  | Win10 | MacOS | Notes |
 |---|---|---|---|
-| stable_baselines-ppo2 multiagents | | score=1 **(8min)** | see `python train_multiagent.py`
-| stable_baselines-ppo2 mpi multi agent | | score=2 (26min) | see `python train.py`
-| stable_baselines-ppo2 single agent | | score=11 (60min) | see `python train_simple.py`
+| stable_baselines-ppo2 multiagents | | score=870 **(9min)** | see `python train_multiagent.py`
 
 ### Charts
 |  | Win10 | MacOS  |
 |---|---|---|
-| stable_baselines-ppo2 multiagents | | ![MacOS-stable_baselines-ppo2-multiagent-score=1](./Images/MacOS-stable_baselines-ppo2-multiagent-score=1.png)
-| stable_baselines-ppo2 mpi multi agent | | ![MacOS-stable_baselines-ppo2-4xmpi-score=2](./Images/MacOS-stable_baselines-ppo2-4xmpi-score=2.png)  |
-| stable_baselines-ppo2 single agent | | ![MacOS-stable_baselines-ppo2-single-agent-score=11](./Images/MacOS-stable_baselines-ppo2-single-agent-score=11.png)  |
+| stable_baselines-ppo2 multiagents | | ![MacOS-stable_baselines_ppo2_cpu](./Images/MacOS-stable_baselines_ppo2_cpu.png)
+| stable_baselines-ppo2 mpi multi agent | |   |
+| stable_baselines-ppo2 single agent | |  |
 | baselines-ppo2 single agent TfRunningMeanStd | | ![MacOS-solo_agent-openai-baselines-ppo2-score=107-1m-simulation-steps](./Images/MacOS-solo_agent-openai-baselines-ppo2-score=107-1m-simulation-steps.png)
 
 

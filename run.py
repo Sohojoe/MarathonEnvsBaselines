@@ -4,21 +4,25 @@ from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import DummyVecEnv, VecNormalize
 from stable_baselines import PPO2
 from gym_unity.envs import UnityEnv
+from UnityVecEnv import UnityVecEnv
 import os
 import psutil
 
 
 def main():
-    env_id = "hopper"
-    # env_id = "walker"
+    # env_id = "hopper"
+    env_id = "walker"
     if psutil.MACOS:
         env_path = os.path.join('envs', env_id+'-run')
     elif psutil.WINDOWS:
         env_path = os.path.join('envs', env_id+'-run', 'Unity Environment.exe')
+        # env_path = os.path.join('envs', env_id+'-x16', 'Unity Environment.exe')
+
     env = UnityEnv(env_path)
     env = DummyVecEnv([lambda: env])  # The algorithms require a vectorized environment to run
+    # env = UnityVecEnv(os.path.join(env_path))
+
     # Automatically normalize the input features
-    # env = VecNormalize(env)
     env = VecNormalize(env, norm_obs=True, norm_reward=False)
 
 

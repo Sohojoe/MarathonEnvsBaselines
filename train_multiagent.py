@@ -15,8 +15,8 @@ class CustomPolicy(FeedForwardPolicy):
                                            feature_extraction="mlp")
 
 def main():
-    env_id = "hopper"
-    # env_id = "walker"
+    # env_id = "hopper"
+    env_id = "walker"
     if psutil.MACOS:
         env_path = os.path.join('envs', env_id+'-x16')
     elif psutil.WINDOWS:
@@ -31,7 +31,7 @@ def main():
     # env = VecNormalize(env, norm_obs=True, norm_reward=True,clip_obs=10.)
     env = VecNormalize(env, norm_obs=True, norm_reward=False)
 
-    tensorboard_log = os.path.join("summaries", env_id + "028")
+    tensorboard_log = os.path.join("summaries", env_id + "030")
     os.makedirs(tensorboard_log, exist_ok=True)
     policy = MlpPolicy
     # policy = MlpLstmPolicy
