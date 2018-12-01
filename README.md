@@ -11,7 +11,7 @@ Explority implementation of
 * MarathonEnvs
 * ml-agents = 0.5.1
 * openai.baselines = 7bfbcf1
-* stable.baselines = [v2.1.0](https://github.com/hill-a/stable-baselines/tree/v2.1.0)
+* stable.baselines = [v2.2.0](https://github.com/hill-a/stable-baselines/tree/v2.2.0)
 
 -----
 ### Install
