@@ -93,3 +93,4 @@ ml-agents-protobuf/Grpc*
 dist/
 build/
 summaries.001/
+filename.monitor.csv

@@ -1,0 +1,291 @@
+MarathonHopperEnv-v0:  
+  n_envs: 16
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  normalize: true
+  n_steps: 128 # 2048 / number of agents
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: lin_3e-4
+  cliprange: 0.2
+
+MarathonWalker2DEnv-v0:  
+  n_envs: 16
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  normalize: true
+  n_steps: 128 # 2048 / number of agents
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: lin_3e-4
+  cliprange: 0.2
+
+atari:
+  policy: 'CnnPolicy'
+  n_envs: 8
+  n_steps: 128
+  noptepochs: 4
+  nminibatches: 4
+  n_timesteps: !!float 1e7
+  learning_rate: lin_2.5e-4
+  cliprange: lin_0.1
+  vf_coef: 0.5
+  ent_coef: 0.01
+
+Pendulum-v0:
+  n_envs: 8
+  n_timesteps: !!float 2e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: !!float 3e-4
+  cliprange: 0.2
+
+CartPole-v1:
+  n_envs: 8
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: !!float 3e-4
+  cliprange: 0.2
+
+MountainCar-v0:
+  normalize: true
+  n_envs: 16
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  n_steps: 256
+  nminibatches: 8
+  lam: 0.94
+  gamma: 0.99
+  noptepochs: 4
+  ent_coef: 0.0
+
+MountainCarContinuous-v0:
+  normalize: true
+  n_envs: 16
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  n_steps: 256
+  nminibatches: 8
+  lam: 0.94
+  gamma: 0.99
+  noptepochs: 4
+  ent_coef: 0.0
+
+Acrobot-v1:
+  normalize: true
+  n_envs: 16
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  n_steps: 256
+  nminibatches: 8
+  lam: 0.94
+  gamma: 0.99
+  noptepochs: 4
+  ent_coef: 0.0
+
+BipedalWalker-v2:
+  normalize: true
+  n_envs: 16
+  n_timesteps: !!float 5e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.001
+  learning_rate: !!float 2.5e-4
+  cliprange: 0.2
+
+BipedalWalkerHardcore-v2:
+  normalize: true
+  n_envs: 16
+  n_timesteps: !!float 10e7
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.001
+  learning_rate: lin_2.5e-4
+  cliprange: lin_0.2
+
+LunarLander-v2:
+  n_envs: 16
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  n_steps: 1024
+  nminibatches: 32
+  lam: 0.98
+  gamma: 0.999
+  noptepochs: 4
+  ent_coef: 0.01
+
+LunarLanderContinuous-v2:
+  n_envs: 16
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  n_steps: 1024
+  nminibatches: 32
+  lam: 0.98
+  gamma: 0.999
+  noptepochs: 4
+  ent_coef: 0.01
+
+Walker2DBulletEnv-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 2e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: 2.5e-4
+  cliprange: 0.2
+
+HalfCheetahBulletEnv-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 2e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: 2.5e-4
+  cliprange: 0.2
+
+AntBulletEnv-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 2e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: 2.5e-4
+  cliprange: 0.2
+
+HopperBulletEnv-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 2e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: 2.5e-4
+  cliprange: 0.2
+
+ReacherBulletEnv-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 2e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: 2.5e-4
+  cliprange: 0.2
+
+MinitaurBulletEnv-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 2e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: 2.5e-4
+  cliprange: 0.2
+
+MinitaurBulletDuckEnv-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 2e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: 2.5e-4
+  cliprange: 0.2
+
+HumanoidBulletEnv-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 1e7
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: 2.5e-4
+  cliprange: 0.2
+
+InvertedDoublePendulumBulletEnv-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 2e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: 2.5e-4
+  cliprange: 0.2
+
+InvertedPendulumSwingupBulletEnv-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 2e6
+  policy: 'MlpPolicy'
+  n_steps: 2048
+  nminibatches: 32
+  lam: 0.95
+  gamma: 0.99
+  noptepochs: 10
+  ent_coef: 0.0
+  learning_rate: 2.5e-4
+  cliprange: 0.2

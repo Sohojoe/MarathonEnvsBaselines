@@ -8,6 +8,13 @@ import time
 import csv
 import os.path as osp
 import json
+import os
+
+
+MarathonEnvs = {
+    'MarathonHopperEnv-v0': 'hopper',
+    'MarathonWalker2DEnv-v0': 'walker'
+}
 
 class UnityVecEnv(VecEnv):
     """
@@ -15,10 +22,25 @@ class UnityVecEnv(VecEnv):
 
     :param env_fns: ([Gym Environment]) the list of environments to vectorize
     """
+
+    @staticmethod
+    def GetFilePath(env_id, inference_mode=False):
+        import psutil
+        env_name = MarathonEnvs[env_id]
+        if not inference_mode:
+            env_name = env_name + '-x16'
+        else:
+            env_name = env_name + '-run'
+        if psutil.MACOS:
+            env_path = os.path.join('envs', env_name)
+        elif psutil.WINDOWS:
+            env_path = os.path.join('envs', env_name, 'Unity Environment.exe')
+        return env_path
     
     def __init__(self, env_id):
-        print ("**** ", env_id)
-        env = UnityEnv(env_id, multiagent=True)
+        env_path = UnityVecEnv.GetFilePath(env_id)
+        print ("**** ", env_path)
+        env = UnityEnv(env_path, multiagent=True)
         self.env = env
         env.num_envs = env.number_agents
         VecEnv.__init__(self, env.num_envs, env.observation_space, env.action_space)
