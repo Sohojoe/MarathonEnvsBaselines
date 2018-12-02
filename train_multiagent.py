@@ -15,8 +15,8 @@ class CustomPolicy(FeedForwardPolicy):
                                            feature_extraction="mlp")
 
 def main():
-    # env_id = "hopper"
-    env_id = "walker"
+    env_id = "hopper"
+    # env_id = "walker"
     if psutil.MACOS:
         env_path = os.path.join('envs', env_id+'-x16')
     elif psutil.WINDOWS:
