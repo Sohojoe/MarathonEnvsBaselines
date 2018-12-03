@@ -24,21 +24,21 @@ class UnityVecEnv(VecEnv):
     """
 
     @staticmethod
-    def GetFilePath(env_id, inference_mode=False):
+    def GetFilePath(env_id, inference_mode=False, n_agents=1):
         import psutil
         env_name = MarathonEnvs[env_id]
-        if not inference_mode:
-            env_name = env_name + '-x16'
-        else:
+        if inference_mode:
             env_name = env_name + '-run'
+        elif n_agents is 16:
+            env_name = env_name + '-x16'
         if psutil.MACOS:
             env_path = os.path.join('envs', env_name)
         elif psutil.WINDOWS:
             env_path = os.path.join('envs', env_name, 'Unity Environment.exe')
         return env_path
     
-    def __init__(self, env_id):
-        env_path = UnityVecEnv.GetFilePath(env_id)
+    def __init__(self, env_id, n_agents):
+        env_path = UnityVecEnv.GetFilePath(env_id, n_agents=n_agents)
         print ("**** ", env_path)
         env = UnityEnv(env_path, multiagent=True)
         self.env = env

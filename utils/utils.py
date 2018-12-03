@@ -63,7 +63,7 @@ def make_env(env_id, rank=0, seed=0, log_dir=None):
     return _init
 
 
-def create_test_env(env_id, n_envs=1, is_atari=False,
+def create_test_env(env_id, n_envs=1, n_agents=1, is_atari=False,
                     stats_path=None, norm_reward=False, seed=0,
                     log_dir='', should_render=True):
     """
@@ -71,6 +71,7 @@ def create_test_env(env_id, n_envs=1, is_atari=False,
 
     :param env_id: (str)
     :param n_envs: (int) number of processes
+    :param n_agents: (int) number of agents per enviroment
     :param is_atari: (bool)
     :param stats_path: (str) path to folder containing saved running averaged
     :param norm_reward: (bool) Whether to normalize rewards or not when using Vecnormalize

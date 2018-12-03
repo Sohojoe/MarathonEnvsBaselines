@@ -43,6 +43,8 @@ assert os.path.isfile(model_path), "No model found for {} on {}, path: {}".forma
 
 if algo in ['dqn', 'ddpg']:
     args.n_envs = 1
+if 'n_agents' not in args:
+    args.n_agents = 1 # 1 agent for playback
 
 set_global_seeds(args.seed)
 
@@ -54,7 +56,7 @@ if not os.path.isdir(stats_path):
 
 log_dir = args.reward_log if args.reward_log != '' else None
 
-env = create_test_env(env_id, n_envs=args.n_envs, is_atari=is_atari,
+env = create_test_env(env_id, n_envs=args.n_envs, n_agents=args.n_agents, is_atari=is_atari,
                       stats_path=stats_path, norm_reward=args.norm_reward,
                       seed=args.seed, log_dir=log_dir, should_render=not args.no_render)
 

@@ -1,3 +1,10 @@
+MarathonEnvs:
+  n_agents: 1
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  # learning_rate: 3e-4
+  # normalize: true
+
 MountainCarContinuous-v0:
   n_timesteps: 300000
   policy: 'MlpPolicy'

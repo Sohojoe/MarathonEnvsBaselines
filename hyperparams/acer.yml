@@ -1,3 +1,10 @@
+MarathonEnvs:
+  n_agents: 16
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  learning_rate: 3e-4
+  normalize: true
+
 atari:
   policy: 'CnnPolicy'
   n_envs: 16

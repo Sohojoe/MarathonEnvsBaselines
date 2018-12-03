@@ -51,6 +51,9 @@ for env_id in env_ids:
     is_atari = False
     if 'NoFrameskip' in env_id:
         is_atari = True
+    is_marathon_envs = False
+    if 'Marathon' in env_id:
+        is_marathon_envs = True
 
     print("=" * 10, env_id, "=" * 10)
 
@@ -58,14 +61,16 @@ for env_id in env_ids:
     with open('hyperparams/{}.yml'.format(args.algo), 'r') as f:
         if is_atari:
             hyperparams = yaml.load(f)['atari']
+        elif is_marathon_envs:
+            hyperparams = yaml.load(f)['MarathonEnvs']
         else:
-            # hyperparams = yaml.load(f)['atari']
-            hyperparams = yaml.load(f)['MarathonHopperEnv-v0']
-            # hyperparams = yaml.load(f)[env_id]
+            hyperparams = yaml.load(f)[env_id]
 
     n_envs = hyperparams.get('n_envs', 1)
+    n_agents = hyperparams.get('n_agents', 1)
 
     print("Using {} environments".format(n_envs))
+    print("With {} agents per enviroment".format(n_agents))
 
     # Create learning rate schedules for ppo2
     if args.algo == "ppo2":
@@ -91,10 +96,14 @@ for env_id in env_ids:
     if 'normalize' in hyperparams.keys():
         normalize = hyperparams['normalize']
         del hyperparams['normalize']
+        if args.algo in ['dqn', 'ddpg']:
+            print("WARNING: normalization not supported yet for DDPG/DQN")
 
     # Delete keys so the dict can be pass to the model constructor
     if 'n_envs' in hyperparams.keys():
         del hyperparams['n_envs']
+    if 'n_agents' in hyperparams.keys():
+        del hyperparams['n_agents']
     del hyperparams['n_timesteps']
 
     # Create the environment and wrap it if necessary
@@ -103,17 +112,21 @@ for env_id in env_ids:
         env = make_atari_env(env_id, num_env=n_envs, seed=args.seed)
         # Frame-stacking with 4 frames
         env = VecFrameStack(env, n_stack=4)
-    elif args.algo in ['dqn', 'ddpg']:
-        if hyperparams.get('normalize', False):
-            print("WARNING: normalization not supported yet for DDPG/DQN")
-        env = gym.make(env_id)
-        env.seed(args.seed)
     elif 'Marathon' in env_id:
         from UnityVecEnv import UnityVecEnv
-        env = UnityVecEnv(env_id)
+        if n_agents is 1:
+            from gym_unity.envs import UnityEnv
+            env_path = UnityVecEnv.GetFilePath(env_id, n_agents=n_agents)
+            env = UnityEnv(env_path)
+            env = DummyVecEnv([lambda: env])  # The algorithms require a vectorized environment to run
+        else:
+            env = UnityVecEnv(env_id, n_agents=n_agents)
         if normalize:
             print("Normalizing input and return")
             env = VecNormalize(env)
+    elif args.algo in ['dqn', 'ddpg']:
+        env = gym.make(env_id)
+        env.seed(args.seed)
     else:
         if n_envs == 1:
             env = DummyVecEnv([make_env(env_id, 0, args.seed)])
