@@ -32,6 +32,11 @@ class VecEnv(ABC):
     """
     closed = False
     viewer = None
+
+    metadata = {
+        'render.modes': ['human', 'rgb_array']
+    }
+
     def __init__(self, num_envs, observation_space, action_space):
         self.num_envs = num_envs
         self.observation_space = observation_space
@@ -104,6 +109,7 @@ class VecEnv(ABC):
         bigimg = tile_images(imgs)
         if mode == 'human':
             self.get_viewer().imshow(bigimg)
+            return self.get_viewer().isopen
         elif mode == 'rgb_array':
             return bigimg
         else:
