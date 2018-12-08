@@ -63,6 +63,13 @@ def train(args, extra_args):
     alg_kwargs.update(extra_args)
 
     env = build_env(args)
+    env_type, env_id = get_env_type(args.env)
+    if env_type == 'unity' and args.alg == 'ppo2':
+        new_nsteps = alg_kwargs['nsteps'] // env.num_envs
+        print('***** Reducing nsteps by num agents. From {} to {} *****'.format(alg_kwargs['nsteps'], new_nsteps))
+        alg_kwargs['nsteps'] = new_nsteps
+
+
 
     if args.network:
         alg_kwargs['network'] = args.network
