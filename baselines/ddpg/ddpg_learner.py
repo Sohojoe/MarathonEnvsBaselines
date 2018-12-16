@@ -9,7 +9,10 @@ from baselines import logger
 from baselines.common.mpi_adam import MpiAdam
 import baselines.common.tf_util as U
 from baselines.common.mpi_running_mean_std import RunningMeanStd
-from mpi4py import MPI
+try:
+    from mpi4py import MPI
+except ImportError:
+    MPI = None
 
 def normalize(x, stats):
     if stats is None:
@@ -64,7 +67,6 @@ class DDPG(object):
     def __init__(self, actor, critic, memory, observation_shape, action_shape, param_noise=None, action_noise=None,
         gamma=0.99, tau=0.001, normalize_returns=False, enable_popart=False, normalize_observations=True,
         batch_size=128, observation_range=(-5., 5.), action_range=(-1., 1.), return_range=(-np.inf, np.inf),
-        adaptive_param_noise=True, adaptive_param_noise_policy_threshold=.1,
         critic_l2_reg=0., actor_lr=1e-4, critic_lr=1e-3, clip_norm=None, reward_scale=1.):
         # Inputs.
         self.obs0 = tf.placeholder(tf.float32, shape=(None,) + observation_shape, name='obs0')
@@ -183,7 +185,7 @@ class DDPG(object):
         normalized_critic_target_tf = tf.clip_by_value(normalize(self.critic_target, self.ret_rms), self.return_range[0], self.return_range[1])
         self.critic_loss = tf.reduce_mean(tf.square(self.normalized_critic_tf - normalized_critic_target_tf))
         if self.critic_l2_reg > 0.:
-            critic_reg_vars = [var for var in self.critic.trainable_vars if 'kernel' in var.name and 'output' not in var.name]
+            critic_reg_vars = [var for var in self.critic.trainable_vars if var.name.endswith('/w:0') and 'output' not in var.name]
             for var in critic_reg_vars:
                 logger.info('  regularizing: {}'.format(var.name))
             logger.info('  applying l2 regularization with {}'.format(self.critic_l2_reg))
@@ -265,19 +267,24 @@ class DDPG(object):
         else:
             action = self.sess.run(actor_tf, feed_dict=feed_dict)
             q = None
-        action = action.flatten()
+
         if self.action_noise is not None and apply_noise:
             noise = self.action_noise()
-            assert noise.shape == action.shape
+            assert noise.shape == action[0].shape
             action += noise
         action = np.clip(action, self.action_range[0], self.action_range[1])
+
+
         return action, q, None, None
 
     def store_transition(self, obs0, action, reward, obs1, terminal1):
         reward *= self.reward_scale
-        self.memory.append(obs0, action, reward, obs1, terminal1)
-        if self.normalize_observations:
-            self.obs_rms.update(np.array([obs0]))
+
+        B = obs0.shape[0]
+        for b in range(B):
+            self.memory.append(obs0[b], action[b], reward[b], obs1[b], terminal1[b])
+            if self.normalize_observations:
+                self.obs_rms.update(np.array([obs0[b]]))
 
     def train(self):
         # Get a batch.
@@ -353,6 +360,11 @@ class DDPG(object):
         return stats
 
     def adapt_param_noise(self):
+        try:
+            from mpi4py import MPI
+        except ImportError:
+            MPI = None
+
         if self.param_noise is None:
             return 0.
 
@@ -366,7 +378,16 @@ class DDPG(object):
             self.param_noise_stddev: self.param_noise.current_stddev,
         })
 
-        mean_distance = MPI.COMM_WORLD.allreduce(distance, op=MPI.SUM) / MPI.COMM_WORLD.Get_size()
+        if MPI is not None:
+            mean_distance = MPI.COMM_WORLD.allreduce(distance, op=MPI.SUM) / MPI.COMM_WORLD.Get_size()
+        else:
+            mean_distance = distance
+
+        if MPI is not None:
+            mean_distance = MPI.COMM_WORLD.allreduce(distance, op=MPI.SUM) / MPI.COMM_WORLD.Get_size()
+        else:
+            mean_distance = distance
+
         self.param_noise.adapt(mean_distance)
         return mean_distance
 

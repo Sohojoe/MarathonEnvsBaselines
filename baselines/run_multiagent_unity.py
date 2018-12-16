@@ -7,13 +7,18 @@ import tensorflow as tf
 import numpy as np
 
 from baselines.common.vec_env.vec_frame_stack import VecFrameStack
-from baselines.common.cmd_util import common_arg_parser, parse_unknown_args, make_vec_env, make_multi_unity_vec_env
+from baselines.common.cmd_util import common_arg_parser, parse_unknown_args, make_vec_env
 from baselines.common.tf_util import get_session
 from baselines import bench, logger
 from importlib import import_module
 
 from baselines.common.vec_env.vec_normalize import VecNormalize
 from baselines.common import atari_wrappers, retro_wrappers
+
+from gym_unity.envs import UnityEnv
+from baselines.common.vec_env.unity_vec_env import UnityVecEnv
+from baselines.common import set_global_seeds
+
 
 try:
     from mpi4py import MPI
@@ -50,6 +55,21 @@ _game_envs['retro'] = {
     'SpaceInvaders-Snes',
 }
 
+def make_multi_unity_vec_env(env_id, env_type, num_env, seed, wrapper_kwargs=None, start_index=0, reward_scale=1.0):
+    """
+    Create a wrapped, monitored SubprocVecEnv for Atari and MuJoCo.
+    """
+    if wrapper_kwargs is None: wrapper_kwargs = {}
+    mpi_rank = MPI.COMM_WORLD.Get_rank() if MPI else 0
+    set_global_seeds(seed)
+    rank = mpi_rank
+    if env_type == 'unity':
+        worker_id = 32 + rank
+        print ("***** UnityEnv", env_id, worker_id, rank)
+        # env = UnityEnv(env_id, worker_id, multiagent=True)
+        env = UnityVecEnv(env_id)
+        return env
+    return None
 
 def train(args, extra_args):
     env_type, env_id = get_env_type(args.env)
