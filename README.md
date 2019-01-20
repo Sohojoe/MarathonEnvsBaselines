@@ -172,7 +172,7 @@ pip install stable-baselines
 
 ```
 # trains 16 concurrent agents
-python sb_train.py --algo ppo2 --env MarathonWalkerEnv-v0
+python sb_train.py --algo ppo2 --env MarathonHopperEnv-v0
 python sb_train.py --algo ppo2 --env MarathonWalker2DEnv-v0
 
 # loads and runs a trained model
