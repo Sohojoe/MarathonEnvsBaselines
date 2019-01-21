@@ -8,16 +8,19 @@ from stable_baselines.common import set_global_seeds
 from stable_baselines.common.vec_env import VecNormalize, VecFrameStack
 
 
-from utils import ALGOS, create_test_env
+from utils import ALGOS, create_test_env, get_latest_run_id, get_saved_hyperparams
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--env', help='environment ID', type=str, default='CartPole-v1')
-parser.add_argument('-f', '--folder', help='Log folder', type=str, default='trained_agents')
+# parser.add_argument('-f', '--folder', help='Log folder', type=str, default='trained_agents')
+parser.add_argument('-f', '--folder', help='Log folder', type=str, default='logs')
 parser.add_argument('--algo', help='RL Algorithm', default='ppo2',
                     type=str, required=False, choices=list(ALGOS.keys()))
-parser.add_argument('-n', '--n-timesteps', help='number of timesteps', default=10000,
+parser.add_argument('-n', '--n-timesteps', help='number of timesteps', default=1000,
                     type=int)
 parser.add_argument('--n-envs', help='number of environments', default=1,
+                    type=int)
+parser.add_argument('--exp-id', help='Experiment ID (default: -1, no exp folder, 0: latest)', default=-1,
                     type=int)
 parser.add_argument('--verbose', help='Verbose mode (0: no output, 1: INFO)', default=1,
                     type=int)
@@ -35,30 +38,43 @@ args = parser.parse_args()
 env_id = args.env
 algo = args.algo
 folder = args.folder
-model_path = "{}/{}/{}.pkl".format(folder, algo, env_id)
+model_path = os.path.join(folder, algo, env_id)
+
+if args.exp_id == 0:
+    args.exp_id = get_latest_run_id(os.path.join(folder, algo), env_id)
 
 # Sanity checks
-assert os.path.isdir(folder + '/' + algo), "The {}/{}/ folder was not found".format(folder, algo)
+if args.exp_id > 0:
+    log_path = os.path.join(folder, algo, env_id, args.exp_id)
+else:
+    log_path = os.path.join(folder, algo, env_id)
+
+model_path = os.path.join(log_path, env_id) + '.pkl'
+
+assert os.path.isdir(log_path), "The {} folder was not found".format(log_path)
 assert os.path.isfile(model_path), "No model found for {} on {}, path: {}".format(algo, env_id, model_path)
 
-if algo in ['dqn', 'ddpg']:
+if algo in ['dqn', 'ddpg', 'sac']:
     args.n_envs = 1
-if 'n_agents' not in args:
-    args.n_agents = 1 # 1 agent for playback
 
 set_global_seeds(args.seed)
 
 is_atari = 'NoFrameskip' in env_id
 
-stats_path = "{}/{}/{}/".format(folder, algo, env_id)
-if not os.path.isdir(stats_path):
-    stats_path = None
+stats_path = os.path.join(log_path, env_id)
+hyperparams, stats_path = get_saved_hyperparams(stats_path, norm_reward=args.norm_reward, test_mode=True)
 
 log_dir = args.reward_log if args.reward_log != '' else None
 
-env = create_test_env(env_id, n_envs=args.n_envs, n_agents=args.n_agents, is_atari=is_atari,
-                      stats_path=stats_path, norm_reward=args.norm_reward,
-                      seed=args.seed, log_dir=log_dir, should_render=not args.no_render)
+env = create_test_env(env_id, n_envs=args.n_envs, is_atari=is_atari,
+                        stats_path=stats_path, seed=args.seed, log_dir=log_dir,
+                        should_render=not args.no_render,
+                        hyperparams=hyperparams)
+
+
+# env = create_test_env(env_id, n_envs=args.n_envs, n_agents=args.n_agents, is_atari=is_atari,
+#                       stats_path=stats_path, norm_reward=args.norm_reward,
+#                       seed=args.seed, log_dir=log_dir, should_render=not args.no_render)
 
 model = ALGOS[algo].load(model_path)
 

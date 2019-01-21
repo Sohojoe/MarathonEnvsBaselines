@@ -11,7 +11,7 @@ Explority implementation of
 * MarathonEnvs
 * ml-agents = 0.5.1
 * openai.baselines = 7bfbcf1
-* stable.baselines = [v2.2.0](https://github.com/hill-a/stable-baselines/tree/v2.2.0)
+* stable.baselines = [v2.4.0](https://github.com/hill-a/stable-baselines/tree/v2.4.0)
 
 -----
 ### Install
@@ -178,6 +178,14 @@ python sb_train.py --algo ppo2 --env MarathonWalker2DEnv-v0
 # loads and runs a trained model
 python sb_enjoy.py --algo ppo2 --env MarathonHopperEnv-v0
 python sb_enjoy.py --algo ppo2 --env MarathonWalker2DEnv-v0
+
+# trains Soft Actor Critic (SAC) - only supports single agent
+python sb_train.py --algo sac --env MarathonHopperEnv-v0
+python sb_train.py --algo sac --env MarathonWalker2DEnv-v0
+
+# loads and runs a trained model
+python sb_enjoy.py --algo sac --env MarathonHopperEnv-v0
+python sb_enjoy.py --algo sac --env MarathonWalker2DEnv-v0
 ```
 
 ### Status

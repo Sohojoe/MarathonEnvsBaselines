@@ -1,6 +1,7 @@
 import argparse
 import difflib
 import os
+from collections import OrderedDict
 
 import gym
 # import pybullet_envs 
@@ -12,7 +13,7 @@ from stable_baselines.common.vec_env import VecFrameStack, SubprocVecEnv, VecNor
 from stable_baselines.ddpg import AdaptiveParamNoiseSpec, NormalActionNoise, OrnsteinUhlenbeckActionNoise
 from stable_baselines.ppo2.ppo2 import constfn
 
-from utils import make_env, ALGOS, linear_schedule
+from utils import make_env, ALGOS, linear_schedule, get_latest_run_id
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--env', type=str, nargs='+', default=["CartPole-v1"], help='environment ID(s)')
@@ -23,8 +24,12 @@ parser.add_argument('--algo', help='RL Algorithm', default='ppo2',
                     type=str, required=False, choices=list(ALGOS.keys()))
 parser.add_argument('-n', '--n-timesteps', help='Overwrite the number of timesteps', default=-1,
                     type=int)
+parser.add_argument('--log-interval', help='Override log interval (default: -1, no change)', default=-1,
+                    type=int)
 parser.add_argument('-f', '--log-folder', help='Log folder', type=str, default='logs')
 parser.add_argument('--seed', help='Random generator seed', type=int, default=0)
+parser.add_argument('--exp-id', help='Experiment ID (default: -1, no exp folder, 0: latest)', default=-1,
+                    type=int)
 args = parser.parse_args()
 
 env_ids = args.env
@@ -66,6 +71,9 @@ for env_id in env_ids:
         else:
             hyperparams = yaml.load(f)[env_id]
 
+    # Sort hyperparams that will be saved
+    saved_hyperparams = OrderedDict([(key, hyperparams[key]) for key in sorted(hyperparams.keys())])
+
     n_envs = hyperparams.get('n_envs', 1)
     n_agents = hyperparams.get('n_agents', 1)
 
@@ -73,7 +81,7 @@ for env_id in env_ids:
     print("With {} agents per enviroment".format(n_agents))
 
     # Create learning rate schedules for ppo2
-    if args.algo == "ppo2":
+    if args.algo == "ppo2" or args.algo == "sac":
         for key in ['learning_rate', 'cliprange']:
             if key not in hyperparams:
                 continue
@@ -93,8 +101,12 @@ for env_id in env_ids:
         n_timesteps = int(hyperparams['n_timesteps'])
 
     normalize = False
+    normalize_kwargs = {}
     if 'normalize' in hyperparams.keys():
         normalize = hyperparams['normalize']
+        if isinstance(normalize, str):
+             normalize_kwargs = eval(normalize)
+             normalize = True
         del hyperparams['normalize']
         if args.algo in ['dqn', 'ddpg']:
             print("WARNING: normalization not supported yet for DDPG/DQN")
@@ -123,7 +135,7 @@ for env_id in env_ids:
             env = UnityVecEnv(env_id, n_agents=n_agents)
         if normalize:
             print("Normalizing input and return")
-            env = VecNormalize(env)
+            env = VecNormalize(env, **normalize_kwargs)
     elif args.algo in ['dqn', 'ddpg']:
         env = gym.make(env_id)
         env.seed(args.seed)
@@ -134,7 +146,7 @@ for env_id in env_ids:
             env = SubprocVecEnv([make_env(env_id, i, args.seed) for i in range(n_envs)])
         if normalize:
             print("Normalizing input and return")
-            env = VecNormalize(env)
+            env = VecNormalize(env, **normalize_kwargs)
 
     # Optional Frame-stacking
     n_stack = 1
@@ -185,20 +197,34 @@ for env_id in env_ids:
         # Train an agent from scratch
         model = ALGOS[args.algo](env=env, tensorboard_log=tensorboard_log, verbose=1, **hyperparams)
 
-    model.learn(n_timesteps)
+    kwargs = {}
+    if args.log_interval > -1:
+        kwargs = {'log_interval': args.log_interval}
+
+    model.learn(n_timesteps, **kwargs)
 
     # Save trained model
-    os.makedirs("{}/{}/".format(args.log_folder, args.algo), exist_ok=True)
-    model.save("{}/{}/{}".format(args.log_folder, args.algo, env_id))
-    if normalize or n_stack > 1:
-        path = "{}/{}/{}".format(args.log_folder, args.algo, env_id)
-        os.makedirs(path, exist_ok=True)
-        if normalize:
-            # Unwrap
-            if isinstance(env, VecFrameStack):
-                env = env.venv
-            # Important: save the running average, for testing the agent we need that normalization
-            env.save_running_average(path)
-        if n_stack > 1:
-            with open(os.path.join(path, 'n_stack'), 'w') as f:
-                f.write(str(n_stack))
+    # Save trained model
+    log_path = os.path.join(args.log_folder, args.algo)
+    if args.exp_id == 0:
+        args.exp_id = get_latest_run_id(log_path, env_id)
+    if args.exp_id > 0:
+        save_path = os.path.join(log_path, os.path.join(env_id, str(args.exp_id + 1)))
+    else:
+        save_path = os.path.join(log_path, env_id)
+    params_path = save_path
+    os.makedirs(params_path, exist_ok=True)
+    print("Saving to {}".format(save_path))
+
+    model.save(os.path.join(save_path, env_id))
+    # Save hyperparams
+    with open(os.path.join(params_path, 'config.yml'), 'w') as f:
+        yaml.dump(saved_hyperparams, f)
+
+    if normalize:
+        # Unwrap
+        if isinstance(env, VecFrameStack):
+            env = env.venv
+        # Important: save the running average, for testing the agent we need that normalization
+        env.save_running_average(params_path)
+print("----")
