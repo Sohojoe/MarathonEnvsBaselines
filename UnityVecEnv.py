@@ -33,6 +33,8 @@ class UnityVecEnv(VecEnv):
             env_name = env_name + '-x16'
         if psutil.MACOS:
             env_path = os.path.join('envs', env_name)
+        elif psutil.LINUX:
+            env_path = os.path.join('envs', env_name)
         elif psutil.WINDOWS:
             env_path = os.path.join('envs', env_name, 'Unity Environment.exe')
         return env_path
